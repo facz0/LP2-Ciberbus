@@ -30,15 +30,15 @@ public class Reserva {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdReserva")
-    private Integer IdReserva;
+    private Integer idReserva;
 
     @ManyToOne
     @JoinColumn(name = "IdUsuario")
-    private Integer IdUsuario;
+    private Usuario usuario;
 
     @ManyToOne
     @JoinColumn(name = "IdViaje")
-    private Integer IdViaje;
+    private Viaje viaje;
 
     @Column(name = "CodigoReserva")
     private String codigoReserva;

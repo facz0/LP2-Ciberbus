@@ -26,19 +26,19 @@ public class DetalleReserva {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "IdDetalleReserva")
-    private Integer IdDetalleReserva;
+    private Integer idDetalleReserva;
 
     @ManyToOne
     @JoinColumn(name = "IdReserva")
-    private Integer IdReserva;
+    private Reserva reserva;
 
     @ManyToOne
     @JoinColumn(name = "IdViajeAsiento")
-    private Integer IdViajeAsiento;
+    private ViajeAsiento viajeAsiento;
 
     @ManyToOne
     @JoinColumn(name = "IdPasajero")
-    private Integer IdPasajero;
+    private Pasajero pasajero;
 
     @Column(name = "PrecioPagado")
     private BigDecimal precioPagado;
