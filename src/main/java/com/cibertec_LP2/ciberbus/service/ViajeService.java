@@ -18,4 +18,8 @@ public class ViajeService {
         return viajeRepository.findByRutaIdRutaAndFechaSalida(idRuta, fechaSalida);
     }
 
+    public Viaje buscarPorId(Integer idViaje) {
+        return viajeRepository.findById(idViaje).orElse(null);
+    }
+
 }
