@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layouts/layout_admin :: layoutAdmin(~{::contenido})}">
+
+<div th:fragment="contenido">
+
+    <div class="text_center mb-5 mt-3">
+        <h1 class="fw-bold">Página de mantenimiento de Conductores</h1>
+    </div>
+
+    <div class="row mb-3 align-items-center">
+        <div class="col">
+            <a href="#" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalConductor" onclick="crear()">
+                <i class="bi bi-person-plus"></i> Agregar Conductor
+            </a>
+        </div>
+    </div>
+
+    <!-- Sección de Filtros estilo LP2 -->
+    <div class="mb-4">
+        <fieldset class="border border-2 border-secondary-subtle rounded-3 p-3 bg-light">
+            <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">
+                <i class="bi bi-funnel-fill me-1"></i> Filtros de búsqueda
+            </legend>
+            <form th:action="@{/admin/conductores}" method="get">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-4">
+                        <label for="filtroDni" class="form-label small fw-bold">Número de Documento (DNI)</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-person-vcard"></i></span>
+                            <input type="text" class="form-control" id="filtroDni" name="dni" 
+                                   placeholder="Ingrese DNI a buscar..." th:value="${filter?.dni}">
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-sm btn-outline-dark">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                        <a th:href="@{/admin/conductores}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </fieldset>
+    </div>
+
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>N° Documento</th>
+                <th>Licencia</th>
+                <th>Correo</th>
+                <th>Descanso</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${#lists.isEmpty(lst_conductores)}">
+                <td colspan="7" class="text-center text-muted py-4">No se encontraron conductores registrados.</td>
+            </tr>
+            <tr th:each="item : ${lst_conductores}">
+                <td th:text="${item.nombre + ' ' + item.apellidos}">Juan Perez</td>
+                <td th:text="${item.numeroDocumento}">12345678</td>
+                <td th:text="${item.categoriaLicencia}">A-IIIb</td>
+                <td th:text="${item.correo}">juan@mail.com</td>
+                <td th:text="${item.diaDescanso}">Lunes</td>
+                <td>
+                    <span class="badge" th:classappend="${item.estado == 1} ? 'text-bg-success' : 'text-bg-danger'"
+                          th:text="${item.estado == 1 ? 'Habilitado' : 'Deshabilitado'}">Habilitado</span>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalConductor"
+                                th:data-id="${item.conductorId}"
+                                th:data-tipodoc="${item.tipoDocumento}"
+                                th:data-numdoc="${item.numeroDocumento}"
+                                th:data-nombre="${item.nombre}"
+                                th:data-apellidos="${item.apellidos}"
+                                th:data-correo="${item.correo}"
+                                th:data-telefono="${item.telefono}"
+                                th:data-licencia="${item.categoriaLicencia}"
+                                th:data-vencimiento="${item.vencimientoLicencia}"
+                                th:data-descanso="${item.diaDescanso}"
+                                th:data-estado="${item.estado}"
+                                onclick="editarConductor(this)">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger"
+                                th:onclick="|eliminar(${item.conductorId})|">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <form id="formEliminar" th:action="@{/admin/conductores/eliminar}" method="post">
+        <input type="hidden" name="id">
+    </form>
+
+    <div class="modal fade" id="modalConductor" tabindex="-1" aria-labelledby="modalConductorLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header text-bg-primary">
+                    <h1 class="modal-title fs-5" id="modalConductorLabel">Registrar Nuevo Conductor</h1>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form th:action="@{/admin/conductores/guardar}" method="POST">
+
+                    <div class="modal-body">
+                        <input type="hidden" id="conductorId" name="conductorId">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Nombre</label> 
+                                <input type="text" class="form-control" id="nombre" name="nombre" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Apellidos</label> 
+                                <input type="text" class="form-control" id="apellidos" name="apellidos" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Tipo Documento</label> 
+                                <select class="form-select" id="tipoDocumento" name="tipoDocumento">
+                                    <option value="DNI">DNI</option>
+                                    <option value="CE">Carnet de Extranjería</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">N° Documento</label> 
+                                <input type="number" class="form-control" id="numeroDocumento" name="numeroDocumento" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Correo Electrónico</label> 
+                                <input type="email" class="form-control" id="correo" name="correo">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Teléfono</label> 
+                                <input type="number" class="form-control" id="telefono" name="telefono">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Licencia</label> 
+                                <input type="text" class="form-control" id="categoriaLicencia" name="categoriaLicencia" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Vencimiento</label> 
+                                <input type="date" class="form-control" id="vencimientoLicencia" name="vencimientoLicencia" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-bold">Día Descanso</label> 
+                                <select class="form-select" id="diaDescanso" name="diaDescanso">
+                                    <option value="Lunes">Lunes</option>
+                                    <option value="Martes">Martes</option>
+                                    <option value="Miércoles">Miércoles</option>
+                                    <option value="Jueves">Jueves</option>
+                                    <option value="Viernes">Viernes</option>
+                                    <option value="Sábado">Sábado</option>
+                                    <option value="Domingo">Domingo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Estado</label> 
+                            <select class="form-select" id="estado" name="estado">
+                                <option value="1">Habilitado</option>
+                                <option value="0">Deshabilitado</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-floppy"></i> Guardar Conductor
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        const eliminar = (id) => {
+            const respuesta = confirm('¿Desea eliminar el conductor?');
+            if (respuesta) {
+                document.querySelector('#formEliminar input[name=id]').value = id;
+                document.getElementById('formEliminar').submit();
+            }
+        };
+
+        const crear = () => {
+            document.querySelector('#modalConductor .modal-title').innerText = 'Registrar Nuevo Conductor';
+            document.querySelector('#conductorId').value = '';
+            document.querySelector('#tipoDocumento').value = 'DNI'; 
+            document.querySelector('#numeroDocumento').value = '';
+            document.querySelector('#nombre').value = '';
+            document.querySelector('#apellidos').value = '';
+            document.querySelector('#correo').value = '';
+            document.querySelector('#telefono').value = '';
+            document.querySelector('#categoriaLicencia').value = '';
+            document.querySelector('#vencimientoLicencia').value = '';
+            document.querySelector('#diaDescanso').value = 'Lunes';
+            document.querySelector('#estado').value = '1'; 
+        };
+
+        const editarConductor = (btn) => {
+            document.querySelector('#modalConductor .modal-title').innerText = 'Editar Conductor';
+            document.querySelector('#conductorId').value = btn.getAttribute('data-id') || '';
+            document.querySelector('#tipoDocumento').value = btn.getAttribute('data-tipodoc') || 'DNI';
+            document.querySelector('#numeroDocumento').value = btn.getAttribute('data-numdoc') || '';
+            document.querySelector('#nombre').value = btn.getAttribute('data-nombre') || '';
+            document.querySelector('#apellidos').value = btn.getAttribute('data-apellidos') || '';
+            document.querySelector('#correo').value = btn.getAttribute('data-correo') || '';
+            document.querySelector('#telefono').value = btn.getAttribute('data-telefono') || '';
+            document.querySelector('#categoriaLicencia').value = btn.getAttribute('data-licencia') || '';
+            document.querySelector('#vencimientoLicencia').value = btn.getAttribute('data-vencimiento') || '';
+            document.querySelector('#diaDescanso').value = btn.getAttribute('data-descanso') || 'Lunes';
+            document.querySelector('#estado').value = btn.getAttribute('data-estado') || '1';
+        };
+    </script>
+
+</div>
+</html>

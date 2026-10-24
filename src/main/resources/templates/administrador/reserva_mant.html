@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layouts/layout_admin :: layoutAdmin(~{::contenido})}">
+
+<div th:fragment="contenido">
+
+    <div class="text_center mb-5 mt-3">
+        <h1 class="fw-bold">Página de mantenimiento de Reservas</h1>
+    </div>
+
+    <div class="row mb-3 align-items-center">
+        <div class="col">
+            <a href="#" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalReserva" onclick="crear()">
+                <i class="bi bi-ticket-perforated"></i> Registrar Reserva
+            </a>
+        </div>
+    </div>
+
+    <!-- Sección de Filtros estilo LP2 -->
+    <div class="mb-4">
+        <fieldset class="border border-2 border-secondary-subtle rounded-3 p-3 bg-light">
+            <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">
+                <i class="bi bi-funnel-fill me-1"></i> Filtros de búsqueda
+            </legend>
+            <form th:action="@{/admin/reservas}" method="get">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-5">
+                        <label for="filtroApellido" class="form-label small fw-bold">Apellido del Cliente</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-person-bounding-box"></i></span>
+                            <input type="text" class="form-control" id="filtroApellido" name="apellido" 
+                                   placeholder="Ingrese apellido del cliente..." th:value="${filter?.apellido}">
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-sm btn-outline-dark">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                        <a th:href="@{/admin/reservas}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </fieldset>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover table-sm align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Cód. Reserva</th>
+                    <th>Cliente / Usuario</th>
+                    <th>Viaje (Ruta)</th>
+                    <th>F. Reserva</th>
+                    <th>Monto Total</th>
+                    <th>Método Pago</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${#lists.isEmpty(lst_reservas)}">
+                    <td colspan="8" class="text-center text-muted py-4">No se encontraron reservas registradas.</td>
+                </tr>
+                <tr th:each="item : ${lst_reservas}">
+                    <td class="fw-bold" th:text="${item.codigoReserva}">RES-0001</td>
+                    <td th:text="${item.usuario != null ? item.usuario.nombre + ' ' + item.usuario.apellido : 'Sin cliente asignado'}">Juan Perez</td>
+                    <td th:text="${item.viaje != null && item.viaje.ruta != null ? item.viaje.ruta.codigoRuta + ' (' + item.viaje.codigoViaje + ')' : (item.viaje != null ? item.viaje.codigoViaje : '-')}">LIM-AQP</td>
+                    <td th:text="${item.fechaReserva != null ? #temporals.format(item.fechaReserva, 'yyyy-MM-dd HH:mm') : '-'}">2026-10-21 03:08</td>
+                    <td th:text="${'S/ ' + item.montoTotal}">S/ 120.00</td>
+                    <td th:text="${item.metodoPago}">Tarjeta de Crédito</td>
+                    <td>
+                        <span class="badge" 
+                              th:classappend="${item.estado != null and item.estado.equalsIgnoreCase('pagada')} ? 'text-bg-success' : (${item.estado != null and item.estado.equalsIgnoreCase('pendiente')} ? 'text-bg-warning' : 'text-bg-danger')"
+                              th:text="${item.estado}">pagada</span>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalReserva"
+                                    th:data-id="${item.idReserva}"
+                                    th:data-usuario="${item.usuario != null ? item.usuario.idUsuario : ''}"
+                                    th:data-viaje="${item.viaje != null ? item.viaje.idViaje : ''}"
+                                    th:data-codigo="${item.codigoReserva}"
+                                    th:data-monto="${item.montoTotal}"
+                                    th:data-metodo="${item.metodoPago}"
+                                    th:data-estado="${item.estado}"
+                                    onclick="editarReserva(this)">
+                                <i class="bi bi-pencil-fill"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger"
+                                    th:onclick="|eliminar(${item.idReserva})|">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <form id="formEliminar" th:action="@{/admin/reservas/eliminar}" method="post">
+        <input type="hidden" name="id">
+    </form>
+
+    <div class="modal fade" id="modalReserva" tabindex="-1" aria-labelledby="modalReservaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header text-bg-primary">
+                    <h1 class="modal-title fs-5" id="modalReservaLabel">Registrar Nueva Reserva</h1>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form th:action="@{/admin/reservas/guardar}" method="POST">
+
+                    <div class="modal-body">
+                        <input type="hidden" id="idReserva" name="idReserva">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Código de Reserva</label>
+                                <input type="text" class="form-control" id="codigoReserva" name="codigoReserva" required maxlength="10" placeholder="Ej: RES-0001">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Viaje Programado</label>
+                                <select class="form-select" id="idViaje" name="viaje.idViaje" required>
+                                    <option value="">Seleccione viaje...</option>
+                                    <option th:each="v : ${lst_viajes}" 
+                                            th:value="${v.idViaje}" 
+                                            th:text="${v.codigoViaje + ' - ' + (v.ruta != null ? v.ruta.codigoRuta : '') + ' (' + v.fechaSalida + ' ' + v.horaSalida + ')'}">2026-LI001</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Usuario / Cliente <span class="text-danger">*</span></label>
+                                <select class="form-select" id="idUsuario" name="usuario.idUsuario" required>
+                                    <option value="" disabled selected>-- Seleccione Usuario / Cliente --</option>
+                                    <option th:each="u : ${lst_usuarios}" 
+                                            th:value="${u.idUsuario}" 
+                                            th:text="${u.nombre + ' ' + u.apellido + ' (' + u.nroDocumento + ')'}">Juan Perez</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Monto Total (S/)</label>
+                                <input type="number" step="0.01" min="0" class="form-control" id="montoTotal" name="montoTotal" required placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Método de Pago</label>
+                                <select class="form-select" id="metodoPago" name="metodoPago" required>
+                                    <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                                    <option value="Tarjeta de Débito">Tarjeta de Débito</option>
+                                    <option value="Yape">Yape</option>
+                                    <option value="Plin">Plin</option>
+                                    <option value="Efectivo">Efectivo</option>
+                                    <option value="PAGO WEB">PAGO WEB</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Estado</label>
+                                <select class="form-select" id="estado" name="estado" required>
+                                    <option value="pagada">Pagada</option>
+                                    <option value="pendiente">Pendiente</option>
+                                    <option value="cancelada">Cancelada</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-floppy"></i> Guardar Reserva
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        const eliminar = (id) => {
+            const respuesta = confirm('¿Desea eliminar esta reserva?');
+            if (respuesta) {
+                document.querySelector('#formEliminar input[name=id]').value = id;
+                document.getElementById('formEliminar').submit();
+            }
+        };
+
+        const crear = () => {
+            document.querySelector('#modalReserva .modal-title').innerText = 'Registrar Nueva Reserva';
+            document.querySelector('#idReserva').value = '';
+            document.querySelector('#codigoReserva').value = 'RES-' + Math.floor(1000 + Math.random() * 9000);
+            document.querySelector('#idViaje').value = '';
+            document.querySelector('#idUsuario').value = '';
+            document.querySelector('#montoTotal').value = '';
+            document.querySelector('#metodoPago').value = 'Tarjeta de Crédito';
+            document.querySelector('#estado').value = 'pagada';
+        };
+
+        const editarReserva = (btn) => {
+            document.querySelector('#modalReserva .modal-title').innerText = 'Editar Reserva';
+            document.querySelector('#idReserva').value = btn.getAttribute('data-id') || '';
+            const usr = btn.getAttribute('data-usuario');
+            document.querySelector('#idUsuario').value = (usr && usr !== 'null' && usr !== '0') ? usr : '';
+            document.querySelector('#idViaje').value = btn.getAttribute('data-viaje') || '';
+            document.querySelector('#codigoReserva').value = btn.getAttribute('data-codigo') || '';
+            document.querySelector('#montoTotal').value = btn.getAttribute('data-monto') || '';
+            document.querySelector('#metodoPago').value = btn.getAttribute('data-metodo') || 'Tarjeta de Crédito';
+            document.querySelector('#estado').value = btn.getAttribute('data-estado') || 'pagada';
+        };
+    </script>
+
+</div>
+</html>

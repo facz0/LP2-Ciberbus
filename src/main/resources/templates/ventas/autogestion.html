@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Autogestión - CiberBus</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" th:href="@{/CSS/nav.css}">
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-    <!-- Fragmento del Navbar superior -->
     <div th:replace="~{fragments/nav :: menuNav}"></div>
 
     <!-- Contenido principal de Autogestión -->
@@ -22,8 +20,7 @@
                     <h1 class="fw-bold mb-3" style="color: #4f699c;">Módulo de Autogestión</h1>
                     <p class="text-muted">Consulta y gestiona el estado de tus reservas e itinerarios.</p>
                     <hr class="my-4">
-                    
-                    <!-- Tarjeta del Buscador -->
+
                     <div class="card shadow-sm p-4 mb-4 text-start">
                         <h4 class="mb-3 text-center">Buscar Reserva</h4>
                         <form th:action="@{/autogestion/buscar}" method="get" class="row g-3 justify-content-center">
@@ -41,7 +38,6 @@
                         </form>
                     </div>
 
-                    <!-- Tarjeta de Resultados (Tabla) -->
                     <div class="card shadow-sm p-4 text-start">
                         <h4 class="mb-3">Resultados de la Búsqueda</h4>
                         <div class="table-responsive">
@@ -53,25 +49,23 @@
                                         <th>Código Viaje</th>
                                         <th>Fecha / Hora Salida</th>
                                         <th>Monto Total</th>
-                                        <th>Método Pago</th>
+                                        <th>Destino</th>
                                         <th>Estado</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <!-- Si no hay datos, muestra este mensaje -->
                                     <tr th:if="${lst_reservas == null or lst_reservas.empty}">
                                         <td colspan="7" class="text-center text-muted py-4">
                                             <i class="bi bi-info-circle me-1"></i> No se encontraron reservas registradas. Realiza una búsqueda.
                                         </td>
                                     </tr>
-                                    <!-- Si hay datos, los lista con Thymeleaf incluyendo datos del viaje -->
                                     <tr th:each="r : ${lst_reservas}">
                                         <td th:text="${r.idReserva}">1</td>
                                         <td class="fw-bold" th:text="${r.codigoReserva}">RES001</td>
                                         <td th:text="${r.viaje != null ? r.viaje.codigoViaje : 'N/A'}">VIA001</td>
                                         <td th:text="${r.viaje != null ? r.viaje.fechaSalida + ' ' + r.viaje.horaSalida : 'N/A'}">2026-10-25 08:00</td>
                                         <td th:text="'S/ ' + ${r.montoTotal}">S/ 120.00</td>
-                                        <td th:text="${r.metodoPago}">Tarjeta</td>
+                                        <td th:text="${r.viaje?.ruta?.ciudadLlegada?.departamento}">Destino</td>
                                         <td>
                                             <span class="badge bg-success" th:text="${r.estado}">Pagada</span>
                                         </td>
@@ -86,10 +80,7 @@
         </div>
     </main>
 
-    <!-- Fragmento del Footer -->
     <div th:replace="~{fragments/footer :: piePagina}"></div>
-
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
