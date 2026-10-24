@@ -16,7 +16,7 @@ public class InicioController {
     private final RutaService rutaService;
     
   
-     @GetMapping({"/", "/inicio"})
+    @GetMapping({"/", "/inicio"})
     public String listar(Model model) {
         model.addAttribute("lst_ciudadesOrigen", ciudadService.getAll());
         return "index";

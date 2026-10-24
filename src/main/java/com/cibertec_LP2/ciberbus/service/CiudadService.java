@@ -13,8 +13,12 @@ public class CiudadService {
 
     private final CiudadRepository ciudadRepository;
 
-    public List<Ciudad> getAll(){
+    public List<Ciudad> getAll() {
         return ciudadRepository.findCiudadesconRuta();
+    }
+
+    public List<Ciudad> listarTodas() {
+        return ciudadRepository.findAll();
     }
 
 }

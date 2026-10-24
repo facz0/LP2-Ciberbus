@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layouts/layout_admin :: layoutAdmin(~{::contenido})}">
+
+<div th:fragment="contenido">
+
+    <div class="text_center mb-5 mt-3">
+        <h1 class="fw-bold">Portal de Administración</h1>
+        <h2 class="h4 text-muted">Menú de mantenimiento</h2>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm border-0 rounded-4">
+                <h5 class="card-header bg-white fw-bold py-3">CONDUCTORES</h5>
+                <div class="card-body">
+                    <h5 class="card-title">Tabla de conductores</h5>
+                    <p class="card-text text-secondary">Apartado para registrar, editar, visualizar y eliminar conductores.</p>
+                    <a th:href="@{/admin/conductores}" class="btn btn-primary">Ir a Conductores</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm border-0 rounded-4">
+                <h5 class="card-header bg-white fw-bold py-3">BUSES</h5>
+                <div class="card-body">
+                    <h5 class="card-title">Tabla de buses</h5>
+                    <p class="card-text text-secondary">Apartado para registrar, editar, visualizar y eliminar buses.</p>
+                    <a th:href="@{/admin/buses}" class="btn btn-primary">Ir a Buses</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm border-0 rounded-4">
+                <h5 class="card-header bg-white fw-bold py-3">RUTAS</h5>
+                <div class="card-body">
+                    <h5 class="card-title">Tabla de rutas</h5>
+                    <p class="card-text text-secondary">Apartado para registrar, editar, visualizar y eliminar Rutas.</p>
+                    <a th:href="@{/admin/rutas}" class="btn btn-primary">Ir a Rutas</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm border-0 rounded-4">
+                <h5 class="card-header bg-white fw-bold py-3">VIAJES</h5>
+                <div class="card-body">
+                    <h5 class="card-title">Tabla de viajes</h5>
+                    <p class="card-text text-secondary">Apartado para registrar, editar, visualizar y eliminar Viajes.</p>
+                    <a th:href="@{/admin/viajes}" class="btn btn-primary">Ir a Viajes</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="card h-100 shadow-sm border-0 rounded-4">
+                <h5 class="card-header bg-white fw-bold py-3">RESERVAS</h5>
+                <div class="card-body">
+                    <h5 class="card-title">Tabla de reservas</h5>
+                    <p class="card-text text-secondary">Apartado para registrar, editar, visualizar y eliminar Reservas.</p>
+                    <a th:href="@{/admin/reservas}" class="btn btn-primary">Ir a Reservas</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+</html>

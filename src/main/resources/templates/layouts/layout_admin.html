@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layoutAdmin(contenido)">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración - CiberBus</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+
+    <!-- Navbar Responsivo Superior (Móvil) -->
+    <nav class="navbar navbar-dark bg-dark d-md-none px-3">
+        <a class="navbar-brand fw-bold" th:href="@{/admin/dashboard}">CiberBus Admin</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </nav>
+
+    <!-- Contenedor Principal (Sidebar + Contenido) -->
+    <div class="container-fluid">
+        <div class="row flex-nowrap">
+
+            <!-- Menú Lateral (Sidebar) -->
+            <div class="col-auto col-md-3 col-xl-2 px-0 bg-body-tertiary border-end">
+                <div class="offcanvas-md offcanvas-start min-vh-100" tabindex="-1"
+                     id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+
+                    <div class="offcanvas-header border-bottom">
+                        <h5 class="offcanvas-title fw-bold" id="offcanvasNavbarLabel">Menú Principal</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+                                data-bs-target="#offcanvasNavbar" aria-label="Close"></button>
+                    </div>
+
+                    <div class="offcanvas-body d-flex flex-column p-3">
+                        <!-- Perfil Administrador Conectado -->
+                        <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                            <i class="bi bi-person-circle fs-2 text-primary me-2"></i>
+                            <div class="overflow-hidden">
+                                <h6 class="mb-0 fw-bold text-truncate" th:text="${session.nombreUsuario != null ? session.nombreUsuario : 'Administrador'}">Administrador</h6>
+                                <small class="badge bg-secondary-subtle text-secondary border" th:text="${session.rolUsuario != null ? session.rolUsuario : 'ADMIN'}">ADMIN</small>
+                            </div>
+                        </div>
+
+                        <ul class="nav nav-pills flex-column mb-auto w-100">
+                            
+                            <li class="nav-item mb-1">
+                                <a class="nav-link" th:href="@{/admin/dashboard}">
+                                    <i class="bi bi-speedometer2 me-2"></i> Página de inicio
+                                </a>
+                            </li>
+                            
+                            <li class="nav-item mb-1"><hr class="my-2"></li>
+                            
+                            <li class="nav-item mb-1">
+                                <span class="nav-link active" aria-current="page">
+                                    <i class="bi bi-tools me-2"></i> Mantenimiento
+                                </span>
+                            </li>
+                            
+                            <li class="nav-item mb-1"><hr class="my-2"></li>
+                            
+                            <li class="nav-item mb-1">
+                                <a class="nav-link link-dark" th:href="@{/admin/conductores}">
+                                    <i class="bi bi-person-badge me-2"></i> Conductores
+                                </a>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <a class="nav-link link-dark" th:href="@{/admin/buses}">
+                                    <i class="bi bi-bus-front me-2"></i> Buses
+                                </a>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <a class="nav-link link-dark" th:href="@{/admin/rutas}">
+                                    <i class="bi bi-map me-2"></i> Rutas
+                                </a>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <a class="nav-link link-dark" th:href="@{/admin/viajes}">
+                                    <i class="bi bi-calendar-event me-2"></i> Viajes
+                                </a>
+                            </li>
+                            <li class="nav-item mb-1">
+                                <a class="nav-link link-dark" th:href="@{/admin/reservas}">
+                                    <i class="bi bi-ticket-perforated me-2"></i> Reservas
+                                </a>
+                            </li>
+                            
+                            <li class="nav-item mb-1"><hr class="my-2"></li>
+                            <li class="nav-item mb-1"><span class="nav-link text-muted fw-semibold">Reportes</span></li>
+                            <li class="nav-item mb-1"><hr class="my-2"></li>
+                            
+                            <li class="nav-item mb-1">
+                                <a class="nav-link text-danger" href="#" id="btnCerrarSesion">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Cerrar sesión
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de Contenido Dinámico -->
+            <div class="col py-3 px-4" style="height: 100vh; overflow-y: auto;">
+                <div th:replace="${contenido}">
+                    <!-- Aquí se inyecta el contenido de cada pantalla hija -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Confirmación de cierre de sesión con SweetAlert2 -->
+    <script th:inline="javascript">
+        document.getElementById('btnCerrarSesion')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: "¿Deseas cerrar sesión?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Sí, cerrar",
+                cancelButtonText: "Cancelar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = /*[[@{/logout}]]*/ '/logout';
+                }
+            });
+        });
+    </script>
+
+    <!-- Alertas dinámicas con SweetAlert2 -->
+    <th:block th:utext="${alert}"></th:block>
+</body>
+</html>

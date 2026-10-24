@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{layouts/layout_admin :: layoutAdmin(~{::contenido})}">
+
+<div th:fragment="contenido">
+
+    <div class="text_center mb-5 mt-3">
+        <h1 class="fw-bold">Página de mantenimiento de Buses</h1>
+    </div>
+
+    <div class="row mb-3 align-items-center">
+        <div class="col">
+            <a href="#" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#modalBus" onclick="crear()">
+                <i class="bi bi-bus-front"></i> Agregar Bus
+            </a>
+        </div>
+    </div>
+
+    <!-- Sección de Filtros estilo LP2 -->
+    <div class="mb-4">
+        <fieldset class="border border-2 border-secondary-subtle rounded-3 p-3 bg-light">
+            <legend class="float-none w-auto px-2 fs-6 fw-bold text-secondary">
+                <i class="bi bi-funnel-fill me-1"></i> Filtros de búsqueda
+            </legend>
+            <form th:action="@{/admin/buses}" method="get">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-4">
+                        <label for="filtroTipo" class="form-label small fw-bold">Tipo de Bus</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-bus-front"></i></span>
+                            <select class="form-select" id="filtroTipo" name="tipo">
+                                <option value="">-- Todos los tipos --</option>
+                                <option value="VIP" th:selected="${filter?.tipo == 'VIP'}">VIP</option>
+                                <option value="Plus 180" th:selected="${filter?.tipo == 'Plus 180'}">Plus 180</option>
+                                <option value="Clasico 140" th:selected="${filter?.tipo == 'Clasico 140'}">Clásico 140</option>
+                                <option value="Estándar" th:selected="${filter?.tipo == 'Estándar'}">Estándar</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-sm btn-outline-dark">
+                            <i class="bi bi-search"></i> Buscar
+                        </button>
+                        <a th:href="@{/admin/buses}" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </fieldset>
+    </div>
+
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th>Placa</th>
+                <th>Marca</th>
+                <th>Tipo</th>
+                <th>Pisos</th>
+                <th>Asientos</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:if="${#lists.isEmpty(lst_buses)}">
+                <td colspan="7" class="text-center text-muted py-4">No se encontraron buses registrados.</td>
+            </tr>
+            <tr th:each="item : ${lst_buses}">
+                <td th:text="${item.nroPlaca}">ABC-123</td>
+                <td th:text="${item.marca}">Mercedes-Benz</td>
+                <td th:text="${item.tipoBus}">VIP</td>
+                <td th:text="${item.cantidadPisos}">1</td>
+                <td th:text="${item.nroAsientos}">40</td>
+                <td>
+                    <span class="badge" th:classappend="${item.estado == 1} ? 'text-bg-success' : 'text-bg-danger'"
+                          th:text="${item.estado == 1 ? 'Habilitado' : 'Deshabilitado'}">Habilitado</span>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#modalBus"
+                                th:data-id="${item.idBus}"
+                                th:data-placa="${item.nroPlaca}"
+                                th:data-marca="${item.marca}"
+                                th:data-tipo="${item.tipoBus}"
+                                th:data-pisos="${item.cantidadPisos}"
+                                th:data-asientos="${item.nroAsientos}"
+                                th:data-estado="${item.estado}"
+                                onclick="editarBus(this)">
+                            <i class="bi bi-pencil-fill"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger"
+                                th:onclick="|eliminar(${item.idBus})|">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <form id="formEliminar" th:action="@{/admin/buses/eliminar}" method="post">
+        <input type="hidden" name="id" id="idEliminar">
+    </form>
+
+    <div class="modal fade" id="modalBus" tabindex="-1" aria-labelledby="modalBusLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header text-bg-primary">
+                    <h1 class="modal-title fs-5" id="modalBusLabel">Registrar Nuevo Bus</h1>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form th:action="@{/admin/buses/guardar}" method="POST">
+
+                    <div class="modal-body">
+                        <input type="hidden" id="idBus" name="idBus">
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">N° Placa</label> 
+                                <input type="text" class="form-control" id="nroPlaca" name="nroPlaca" maxlength="15" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Marca</label> 
+                                <input type="text" class="form-control" id="marca" name="marca" maxlength="50" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Tipo de Bus</label> 
+                                <select class="form-select" id="tipoBus" name="tipoBus">
+                                    <option value="VIP">VIP</option>
+                                    <option value="Plus 180">Plus 180</option>
+                                    <option value="Clasico 140">Clásico 140</option>
+                                    <option value="Estándar">Estándar</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Cantidad de Pisos</label> 
+                                <input type="number" class="form-control" id="cantidadPisos" name="cantidadPisos" min="1" max="2" value="1" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">N° Asientos</label> 
+                                <input type="number" class="form-control" id="nroAsientos" name="nroAsientos" min="10" max="100" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold">Estado</label> 
+                                <select class="form-select" id="estado" name="estado">
+                                    <option value="1">Habilitado</option>
+                                    <option value="0">Deshabilitado</option>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-floppy"></i> Guardar Bus
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        const eliminar = (id) => {
+            const respuesta = confirm('¿Desea eliminar este bus?');
+            if (respuesta) {
+                document.querySelector('#formEliminar input[name=id]').value = id;
+                document.getElementById('formEliminar').submit();
+            }
+        };
+
+        const crear = () => {
+            document.querySelector('#modalBus .modal-title').innerText = 'Registrar Nuevo Bus';
+            document.querySelector('#idBus').value = '';
+            document.querySelector('#nroPlaca').value = ''; 
+            document.querySelector('#marca').value = '';	    
+            document.querySelector('#tipoBus').value = 'VIP'; 
+            document.querySelector('#cantidadPisos').value = '1';
+            document.querySelector('#nroAsientos').value = '';
+            document.querySelector('#estado').value = '1'; 
+        };
+
+        const editarBus = (btn) => {
+            document.querySelector('#modalBus .modal-title').innerText = 'Editar Bus';
+            document.querySelector('#idBus').value = btn.getAttribute('data-id') || '';
+            document.querySelector('#nroPlaca').value = btn.getAttribute('data-placa') || '';
+            document.querySelector('#marca').value = btn.getAttribute('data-marca') || '';
+            document.querySelector('#tipoBus').value = btn.getAttribute('data-tipo') || 'VIP';
+            document.querySelector('#cantidadPisos').value = btn.getAttribute('data-pisos') || '1';
+            document.querySelector('#nroAsientos').value = btn.getAttribute('data-asientos') || '';
+            document.querySelector('#estado').value = btn.getAttribute('data-estado') || '1';
+        };
+    </script>
+
+</div>
+</html>
